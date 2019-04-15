@@ -1,0 +1,207 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct book{
+    char *name;
+    int id;
+    int count;
+    int status;
+    struct book *next;
+}Book;
+
+void welcome();
+void error(char *);          
+char stage();                  
+int usrstudent();             
+int usrmanager();  
+
+void welcome(){
+    printf("*************************Welcome using library information system*************************\n");
+    while(1){
+        printf("-------------------------------------\n");
+        printf("Command what do you what to do:\n");
+        printf("\n[1] Staff entrance\n\n[2] Student entrance\n\n[0] Exit\n\n");
+        switch(land()){
+            case '1':
+                while(1){
+                    if(usrmanager()){
+                        continue;
+                    }else{
+                        break;
+                    }
+                 }
+                break;
+            case '2':
+                while(1){
+                    if(usrstudent()){
+                        continue;
+                    }else{
+                        break;
+                    }
+                }
+                break;
+            case '0':
+                exit(0);
+            default:
+                error("Invalid selection");
+        }
+    }
+}
+
+void error(char *s){
+    fprintf(stderr, "%s\n", s);
+}
+
+char land(){
+    char c, flag;
+    int i;
+    while(1){
+        for(i = 0; (c = getchar()) != '\n'; flag = c, ++i);
+        if(i == 1){
+            if(flag == '1' || flag == '2' || flag == '0'){
+                return flag;
+            }
+        }else if(i == 0){
+            continue;
+        }
+        error("[Input the command： 1 / 2 / 0 Select your identity]");
+    }
+    return '\0';
+}
+
+char domanager(){
+
+    char c, flag;
+    int i;
+    
+    while(1){
+        for(i = 0; (c = getchar()) != '\n'; flag = c, ++i)
+            ;
+        if(i == 1){
+            if(flag == '1' || flag == '2' || flag == '3' || flag == '4' || flag == '0'){
+                return flag;
+            }
+        }else if(i == 0){
+            continue;
+        }
+        error("[Input the command： 1 / 2 / 0. Select your identity]");
+            
+    }
+    
+    return '\0';
+}
+int Manager(){
+    printf("-------------------------------------\n");
+    printf("What do you want to do next：\n\n");
+    printf("[1] View the stored book\n[2] Register the new book\n[3] Modify the info of the book\n[4] Delete the stored the book\n");
+    printf("[0] Back to the first page\n");
+    switch(domanager()){
+        case '1':
+            viewbook();
+            break;
+        case '2':
+            addbook();
+            break;
+        case '3':
+            modbook();
+            break;
+        case '4':
+            delbook();
+            break;
+        case '0':
+            return 0;
+        default:
+            error("Invalid selection");
+            break;
+    }
+    return 1;
+
+}
+
+int viewbook(){
+    system(CLEAR);
+    Book *bp;
+    for(bp =head; bp != NULL; bp = bp->next){
+        printbook(bp);
+    }
+    if(nbook){
+        return nbook;
+    }else{
+        printf("There is been no books in the library yet.\n");
+        return 0;
+    }
+    return -1;
+}
+
+void printbook(Book *bp){
+    printf("Book ID：%d\n", bp->id);
+    printf("Book name：%s\n", bp->name);
+    printf("Amount of book：%d\n", bp->count);
+    printf("Status of book：%s\n", bp->status ? "Invalid" : "Valid");
+}
+
+int addbook(){
+    system(CLEAR);   
+    char sname[MAXNAME];
+    int id, count;
+    char *namep;
+
+    while(1){
+        id = 0;
+        count = 0;
+        namep = NULL;
+        printf("Input the name of the book：\n");
+        scanf("%s", sname);
+        getchar();
+        
+        ID:
+        printf("Input the book ID within 1000：\n");
+        scanf("%d", &id);
+        getchar();
+        if(!(id > 0 && id < 1000)){
+            error("Input invalid");
+            fflush(stdin);
+            goto ID;
+        }
+        
+        NUM:
+        printf("Input the amount of book within 50：\n");
+        scanf("%d", &count);
+        getchar();
+        if(!(count > 0 && count < 50)){
+            error("Invalid input");
+            fflush(stdin);
+            goto NUM;
+        }
+        Book *bp;        
+        if((bp = lookup(namep = strdup(sname), id)) == NULL){
+            bp = (Book *)malloc(sizeof (Book));
+            if(bp == NULL || (bp->name = namep) == NULL){
+                error("Fail to register the book");
+                fflush(stdin);
+                continue;
+            }
+            bp->id = id;
+            bp->count = count;
+            bp->status = AVAILABLE;
+            ++nbook;
+            
+            bp->next = head;
+            head = bp;
+            printf("Successfully registering the new book\n", sname);
+            return id;
+        }else{
+            fflush(stdin);
+            error("The name or the ID has been uesed");
+        }
+    }
+
+    return -1;
+}
+
+int main(){
+    
+    welcome();
+    return 0;
+}
